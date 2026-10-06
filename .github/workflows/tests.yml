@@ -1,0 +1,26 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    # requirements.lock pins macOS arm64 wheels, and the spec lock requires Python 3.11.14.
+    # actions/setup-python has no 3.11.14 build for macOS arm64, so uv installs it.
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Python 3.11.14 and the hash-pinned dependencies
+        run: |
+          uv python install 3.11.14
+          uv venv --seed --python 3.11.14 .venv
+          .venv/bin/python --version
+          .venv/bin/python -m pip install --require-hashes -r requirements.lock
+      - name: Run the full suite
+        run: PYTHONPATH=src:. .venv/bin/python -m unittest discover -s tests

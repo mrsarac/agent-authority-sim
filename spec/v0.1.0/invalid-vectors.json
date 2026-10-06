@@ -1,0 +1,295 @@
+{
+  "report": "agent-authority-sim spec 0.1.0",
+  "schema_version": "0.1.0",
+  "classification": "synthetic_non_secret",
+  "status": "expected_rejection_vectors",
+  "mutation_format": "RFC6901-like add_replace_remove over valid-contract base documents",
+  "vectors": [
+    {
+      "vector_id": "S01",
+      "base_kind": "task_envelope",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "add",
+          "path": "/secret_value",
+          "value": "synthetic-forbidden"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Unknown secret-shaped fields are forbidden."
+    },
+    {
+      "vector_id": "S02",
+      "base_kind": "execution_receipt",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/process_result/exit_code",
+          "value": 1
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Success cannot carry a non-zero exit code."
+    },
+    {
+      "vector_id": "S03",
+      "base_kind": "promotion_decision",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/reason_code",
+          "value": "ACCEPTANCE_FAILED"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Promoted decisions require ACCEPTED."
+    },
+    {
+      "vector_id": "S04",
+      "base_kind": "task_envelope",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "add",
+          "path": "/audience/unexpected",
+          "value": "wildcard"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Nested unknown fields are forbidden."
+    },
+    {
+      "vector_id": "S05",
+      "base_kind": "execution_receipt",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/process_result/signal",
+          "value": 9
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Success cannot carry a terminating signal."
+    },
+    {
+      "vector_id": "S06",
+      "base_kind": "execution_receipt",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/usage/0/value",
+          "value": 123
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Unknown usage must keep a null value."
+    },
+    {
+      "vector_id": "S07",
+      "base_kind": "promotion_decision",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/prior_state",
+          "value": "proposal_received"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Promotion cannot precede receipt verification."
+    },
+    {
+      "vector_id": "S08",
+      "base_kind": "promotion_decision",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/decision",
+          "value": "rejected"
+        },
+        {
+          "op": "replace",
+          "path": "/next_state",
+          "value": "rejected"
+        },
+        {
+          "op": "replace",
+          "path": "/accepted_artifacts",
+          "value": []
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Rejected decisions cannot use ACCEPTED."
+    },
+    {
+      "vector_id": "S09",
+      "base_kind": "authority_event",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/sequence",
+          "value": 42
+        },
+        {
+          "op": "replace",
+          "path": "/previous_event_digest",
+          "value": null
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Non-genesis events require a prior digest."
+    },
+    {
+      "vector_id": "S10",
+      "base_kind": "promotion_decision",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "add",
+          "path": "/resulting_authority_head",
+          "value": "sha256:9999999999999999999999999999999999999999999999999999999999999999"
+        },
+        {
+          "op": "add",
+          "path": "/authority_event_id",
+          "value": "event_01future"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "A pre-append decision cannot embed future event identity/head."
+    },
+    {
+      "vector_id": "S11",
+      "base_kind": "execution_receipt",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/terminal_state",
+          "value": "failed"
+        },
+        {
+          "op": "replace",
+          "path": "/process_result/exit_code",
+          "value": 0
+        },
+        {
+          "op": "replace",
+          "path": "/process_result/signal",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/process_result/budget_exceeded",
+          "value": false
+        },
+        {
+          "op": "replace",
+          "path": "/observations/0/status",
+          "value": "pass"
+        },
+        {
+          "op": "replace",
+          "path": "/observations/1/status",
+          "value": "pass"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Failed requires at least one concrete failure signal."
+    },
+    {
+      "vector_id": "S12",
+      "base_kind": "authority_event",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "replace",
+          "path": "/event_type",
+          "value": "task_issued"
+        },
+        {
+          "op": "replace",
+          "path": "/object_kind",
+          "value": "promotion_decision"
+        },
+        {
+          "op": "replace",
+          "path": "/transition/state_machine",
+          "value": "authority"
+        },
+        {
+          "op": "replace",
+          "path": "/transition/expected_state",
+          "value": "BANANA"
+        },
+        {
+          "op": "replace",
+          "path": "/transition/resulting_state",
+          "value": "ACTIVE"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Event type, object kind, state domain, and state names are closed."
+    },
+    {
+      "vector_id": "S13",
+      "base_kind": "promotion_decision",
+      "layer": "schema",
+      "operations": [
+        {
+          "op": "remove",
+          "path": "/accepted_artifacts/0/content_digest"
+        }
+      ],
+      "expected": "reject",
+      "reason_code": "SCHEMA_INVALID",
+      "rationale": "Promoted artifact pins require content and manifest digests."
+    },
+    {
+      "vector_id": "X01",
+      "base_kind": "artifact_manifest",
+      "layer": "cross_document",
+      "operations": [],
+      "expected": "reject",
+      "reason_code": "ARTIFACT_MISMATCH",
+      "rationale": "Same artifact ID with changed bytes or manifest must disagree with receipt/proposal/decision pins."
+    },
+    {
+      "vector_id": "X02",
+      "base_kind": "task_envelope",
+      "layer": "state_model",
+      "operations": [],
+      "expected": "reject",
+      "reason_code": "RECOVERY_REQUIRED",
+      "rationale": "An accepted task without its atomically paired initial capability is an orphaned canonical state."
+    },
+    {
+      "vector_id": "X03",
+      "base_kind": "authority_event",
+      "layer": "state_model",
+      "operations": [],
+      "expected": "reject",
+      "reason_code": "RECOVERY_REQUIRED",
+      "rationale": "A backward accepted authority observed_at value contradicts monotonic authority time."
+    }
+  ]
+}

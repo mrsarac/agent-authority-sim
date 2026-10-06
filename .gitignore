@@ -1,0 +1,7 @@
+.venv/
+.deps/
+__pycache__/
+*.py[cod]
+.DS_Store
+proof-results/
+*.coverage

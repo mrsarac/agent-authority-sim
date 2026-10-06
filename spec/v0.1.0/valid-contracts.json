@@ -1,0 +1,313 @@
+{
+  "schema_version": "0.1.0",
+  "classification": "synthetic_non_secret",
+  "validation_scope": "schema_shape_all_promotion_artifacts_content_and_manifest_pinned_authority_event_digests_recomputed_remaining_content_synthetic",
+  "documents": [
+    {
+      "kind": "authority_lease",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "lease_record_id": "lease-record_01synthetic",
+      "lease_id": "lease_01synthetic",
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "writer_id": "authority:simulator",
+      "lease_action": "renew",
+      "authorization_ref": "policy-decision:sim/synthetic-renewal",
+      "expected_authority_state": "ACTIVE",
+      "issued_at": "2026-08-15T13:59:59Z",
+      "valid_from": "2026-08-15T14:00:00Z",
+      "expires_at": "2026-08-15T14:10:00Z",
+      "policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "prior_authority_head": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "previous_lease_record_id": "lease-record_00synthetic",
+      "projection": "governor_only",
+      "encoding_profile": "simulation_unsigned_v1",
+      "nonce": "lease_nonce_abcdefghijklmnopqrstuvwxyz_01"
+    },
+    {
+      "kind": "task_envelope",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "task_id": "task_01synthetic",
+      "decision_ref": "operator-decision:D-0001/S1/A",
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "issued_at": "2026-08-15T14:00:00Z",
+      "expires_at": "2026-08-15T14:10:00Z",
+      "policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expected_authority_head": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "capability_id": "cap_01synthetic",
+      "audience": {
+        "node_id": "node:synthetic-a",
+        "adapter_id": "adapter:fake-worker"
+      },
+      "goal": "Read the synthetic fixture and return one normalized summary artifact.",
+      "workspace_ref": "workspace:synthetic",
+      "input_refs": [
+        {
+          "artifact_id": "artifact_01fixture",
+          "content_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "byte_length": 128,
+          "media_type": "application/json",
+          "classification": "internal"
+        }
+      ],
+      "context_refs": [],
+      "required_actions": [
+        "read_artifact"
+      ],
+      "required_adapter_features": [
+        "structured-output",
+        "cancellation"
+      ],
+      "acceptance_checks": [
+        {
+          "check_id": "check_schema",
+          "check_type": "schema",
+          "minimum_trust_class": "governor_observed",
+          "required": true,
+          "target_ref": "artifact:summary"
+        }
+      ],
+      "budget": {
+        "max_wall_ms": 60000,
+        "max_tool_calls": 20,
+        "max_output_bytes": 65536,
+        "max_fresh_input_tokens": 8000,
+        "max_output_tokens": 2000,
+        "max_network_requests": 0,
+        "max_processes": 2
+      },
+      "idempotency_key": "task.issue:01synthetic",
+      "nonce": "task_nonce_abcdefghijklmnopqrstuvwxyz_01"
+    },
+    {
+      "kind": "capability_claim",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "capability_id": "cap_01synthetic",
+      "parent_capability_id": null,
+      "task_id": "task_01synthetic",
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "issuer_id": "authority:simulator",
+      "subject": {
+        "node_id": "node:synthetic-a",
+        "process_id": "process:fake-001"
+      },
+      "audience": {
+        "node_id": "node:synthetic-a",
+        "adapter_id": "adapter:fake-worker"
+      },
+      "policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "workspace_ref": "workspace:synthetic",
+      "allowed_actions": [
+        "read_artifact"
+      ],
+      "allowed_input_artifact_ids": [
+        "artifact_01fixture"
+      ],
+      "egress_aliases": [],
+      "broker_handle_refs": [],
+      "resource_bounds": {
+        "max_wall_ms": 60000,
+        "max_tool_calls": 20,
+        "max_output_bytes": 65536,
+        "max_fresh_input_tokens": 8000,
+        "max_output_tokens": 2000,
+        "max_network_requests": 0,
+        "max_processes": 2
+      },
+      "valid_from": "2026-08-15T14:00:00Z",
+      "expires_at": "2026-08-15T14:10:00Z",
+      "revocation_id": "revoke_01synthetic",
+      "delegation_depth": 0,
+      "projection": "governor_only",
+      "encoding_profile": "simulation_unsigned_v1",
+      "nonce": "capability_nonce_abcdefghijklmnopqrstuv_01"
+    },
+    {
+      "kind": "artifact_manifest",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "artifact_id": "artifact_01summary",
+      "task_id": "task_01synthetic",
+      "run_id": "run_01synthetic",
+      "producer": {
+        "node_id": "node:synthetic-a",
+        "adapter_id": "adapter:fake-worker",
+        "process_id": "process:fake-001"
+      },
+      "content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "byte_length": 512,
+      "media_type": "application/json",
+      "classification": "internal",
+      "storage_ref": "artifact-store:sim/01summary",
+      "created_at": "2026-08-15T14:00:12Z",
+      "parent_artifact_ids": [
+        "artifact_01fixture"
+      ],
+      "provenance": "governor_observed",
+      "immutable": true
+    },
+    {
+      "kind": "execution_receipt",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "receipt_id": "receipt_01synthetic",
+      "task_id": "task_01synthetic",
+      "capability_id": "cap_01synthetic",
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "run_id": "run_01synthetic",
+      "node_id": "node:synthetic-a",
+      "process_id": "process:fake-001",
+      "adapter_identity": {
+        "adapter_id": "adapter:fake-worker",
+        "version": "0.1.0",
+        "binary_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "manifest_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+      },
+      "workspace_ref": "workspace:synthetic",
+      "policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "started_at": "2026-08-15T14:00:01Z",
+      "finished_at": "2026-08-15T14:00:12Z",
+      "terminal_state": "success",
+      "process_result": {
+        "exit_code": 0,
+        "signal": null,
+        "wall_ms": 11000,
+        "budget_exceeded": false,
+        "filesystem_change_count": 1,
+        "network_request_count": 0
+      },
+      "observations": [
+        {
+          "observation_id": "obs_01process",
+          "trust_class": "governor_observed",
+          "category": "process",
+          "status": "pass",
+          "summary_code": "PROCESS_EXIT_ZERO"
+        },
+        {
+          "observation_id": "obs_01schema",
+          "trust_class": "governor_observed",
+          "category": "test",
+          "status": "pass",
+          "summary_code": "SCHEMA_VALID",
+          "evidence_artifact_id": "artifact_01summary"
+        }
+      ],
+      "usage": [
+        {
+          "metric": "fresh_input_tokens",
+          "value": null,
+          "authority_state": "unknown"
+        },
+        {
+          "metric": "artifact_bytes",
+          "value": 512,
+          "authority_state": "observed_exact"
+        }
+      ],
+      "nonce": "receipt_nonce_abcdefghijklmnopqrstuvwxyz_01",
+      "artifact_refs": [
+        {
+          "artifact_id": "artifact_01summary",
+          "content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "manifest_digest": "sha256:549afc8f729e2c219d4b9eaa744f87796b511d3ad325ff23132d175dd1c39f5f"
+        }
+      ]
+    },
+    {
+      "kind": "promotion_proposal",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "proposal_id": "proposal_01synthetic",
+      "task_id": "task_01synthetic",
+      "capability_id": "cap_01synthetic",
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "expected_authority_head": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "receipt_ids": [
+        "receipt_01synthetic"
+      ],
+      "requested_effect": "accept_artifact",
+      "acceptance_evidence": [
+        {
+          "check_id": "check_schema",
+          "observation_id": "obs_01schema",
+          "status": "pass",
+          "evidence_artifact_id": "artifact_01summary"
+        }
+      ],
+      "proposed_by": {
+        "actor_class": "worker",
+        "actor_id": "process:fake-001"
+      },
+      "created_at": "2026-08-15T14:00:13Z",
+      "idempotency_key": "promotion.propose:01synthetic",
+      "nonce": "proposal_nonce_abcdefghijklmnopqrstuvwxyz_01",
+      "artifact_refs": [
+        {
+          "artifact_id": "artifact_01summary",
+          "content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "manifest_digest": "sha256:549afc8f729e2c219d4b9eaa744f87796b511d3ad325ff23132d175dd1c39f5f"
+        }
+      ]
+    },
+    {
+      "kind": "promotion_decision",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "promotion_decision_id": "promotion_01synthetic",
+      "proposal_id": "proposal_01synthetic",
+      "task_id": "task_01synthetic",
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "authority_writer_id": "authority:simulator",
+      "prior_authority_head": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "decision": "promoted",
+      "reason_code": "ACCEPTED",
+      "prior_state": "receipt_verified",
+      "next_state": "promoted",
+      "decided_at": "2026-08-15T14:00:14Z",
+      "idempotency_key": "promotion.decide:01synthetic",
+      "accepted_artifacts": [
+        {
+          "artifact_id": "artifact_01summary",
+          "content_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "manifest_digest": "sha256:549afc8f729e2c219d4b9eaa744f87796b511d3ad325ff23132d175dd1c39f5f"
+        }
+      ]
+    },
+    {
+      "kind": "authority_event",
+      "schema_version": "0.1.0",
+      "operator_id": "operator:demo",
+      "event_id": "event_01synthetic",
+      "sequence": 42,
+      "authority_epoch": 7,
+      "lease_generation": 2,
+      "previous_event_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "event_digest": "sha256:4534e9775e5232453eed8bd518e0e22a5f2c0bd369bdb933b2d15cad4d01de66",
+      "event_type": "promotion_recorded",
+      "actor": {
+        "actor_class": "authority_core",
+        "actor_id": "authority:simulator"
+      },
+      "object_kind": "promotion_decision",
+      "object_ref": "promotion_01synthetic",
+      "object_digest": "sha256:3756ee913d8c950e4d32b68b55dbd1d3725a87008bb0e567601411faa5d21e71",
+      "transition": {
+        "state_machine": "promotion",
+        "expected_state": "RECEIPT_VERIFIED",
+        "resulting_state": "PROMOTED"
+      },
+      "policy_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "observed_at": "2026-08-15T14:00:14Z",
+      "idempotency_key": "authority.event:01synthetic"
+    }
+  ]
+}

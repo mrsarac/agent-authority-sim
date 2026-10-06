@@ -1,0 +1,2298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:agent-authority-sim:contracts:0.1.0",
+  "title": "Strict contract bundle",
+  "description": "Simulation-only semantic contracts. Not a production credential or runtime protocol.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/authorityLease"
+    },
+    {
+      "$ref": "#/$defs/taskEnvelope"
+    },
+    {
+      "$ref": "#/$defs/capabilityClaim"
+    },
+    {
+      "$ref": "#/$defs/artifactManifest"
+    },
+    {
+      "$ref": "#/$defs/executionReceipt"
+    },
+    {
+      "$ref": "#/$defs/promotionProposal"
+    },
+    {
+      "$ref": "#/$defs/promotionDecision"
+    },
+    {
+      "$ref": "#/$defs/authorityEvent"
+    }
+  ],
+  "$defs": {
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "content_digest",
+        "byte_length",
+        "media_type",
+        "classification"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1073741824
+        },
+        "media_type": {
+          "type": "string",
+          "pattern": "^[a-z0-9.+-]+/[a-zA-Z0-9.+-]+$",
+          "maxLength": 128
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted"
+          ]
+        }
+      }
+    },
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "adapter_id"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "pattern": "^node:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "adapter_id": {
+          "type": "string",
+          "pattern": "^adapter:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "process_id": {
+          "type": "string",
+          "pattern": "^process:[A-Za-z0-9._-]{3,128}$"
+        }
+      }
+    },
+    "resourceBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_wall_ms",
+        "max_tool_calls",
+        "max_output_bytes",
+        "max_fresh_input_tokens",
+        "max_output_tokens",
+        "max_network_requests",
+        "max_processes"
+      ],
+      "properties": {
+        "max_wall_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400000
+        },
+        "max_tool_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1073741824
+        },
+        "max_fresh_input_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000000
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "max_network_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "max_processes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "acceptanceCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "check_id",
+        "check_type",
+        "minimum_trust_class",
+        "required"
+      ],
+      "properties": {
+        "check_id": {
+          "type": "string",
+          "pattern": "^check_[a-z0-9][a-z0-9-]{3,63}$"
+        },
+        "check_type": {
+          "type": "string",
+          "enum": [
+            "schema",
+            "hash",
+            "test",
+            "diff",
+            "policy",
+            "human_review",
+            "no_external_effect"
+          ]
+        },
+        "minimum_trust_class": {
+          "type": "string",
+          "enum": [
+            "governor_observed",
+            "adapter_parsed",
+            "tool_self_reported",
+            "model_asserted"
+          ]
+        },
+        "required": {
+          "const": true
+        },
+        "target_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9._:-]{3,180}$"
+        }
+      }
+    },
+    "taskEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "task_id",
+        "decision_ref",
+        "authority_epoch",
+        "lease_generation",
+        "issued_at",
+        "expires_at",
+        "policy_digest",
+        "expected_authority_head",
+        "capability_id",
+        "audience",
+        "goal",
+        "workspace_ref",
+        "input_refs",
+        "context_refs",
+        "required_actions",
+        "required_adapter_features",
+        "acceptance_checks",
+        "budget",
+        "idempotency_key",
+        "nonce"
+      ],
+      "properties": {
+        "kind": {
+          "const": "task_envelope"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "decision_ref": {
+          "type": "string",
+          "pattern": "^(operator-decision|policy-decision):[A-Za-z0-9._:/-]{3,180}$"
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "policy_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "expected_authority_head": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "capability_id": {
+          "type": "string",
+          "pattern": "^cap_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "audience": {
+          "$ref": "#/$defs/audience"
+        },
+        "goal": {
+          "type": "string",
+          "pattern": "^(?!\\s)(?!.*\\s$)[\\s\\S]+$",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "workspace_ref": {
+          "type": "string",
+          "pattern": "^workspace:[A-Za-z0-9._-]{3,128}$"
+        },
+        "input_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifactRef"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "context_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifactRef"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "required_actions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "read_artifact",
+              "search_artifact",
+              "write_workspace",
+              "run_test",
+              "execute_process",
+              "network_egress",
+              "external_write",
+              "secret_use"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "required_adapter_features": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]{2,63}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "acceptance_checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/acceptanceCheck"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "budget": {
+          "$ref": "#/$defs/resourceBounds"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9._:-]{15,180}$"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{22,128}$"
+        }
+      }
+    },
+    "capabilityClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "capability_id",
+        "parent_capability_id",
+        "task_id",
+        "authority_epoch",
+        "lease_generation",
+        "issuer_id",
+        "subject",
+        "audience",
+        "policy_digest",
+        "workspace_ref",
+        "allowed_actions",
+        "allowed_input_artifact_ids",
+        "egress_aliases",
+        "broker_handle_refs",
+        "resource_bounds",
+        "valid_from",
+        "expires_at",
+        "revocation_id",
+        "delegation_depth",
+        "projection",
+        "encoding_profile",
+        "nonce"
+      ],
+      "properties": {
+        "kind": {
+          "const": "capability_claim"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "capability_id": {
+          "type": "string",
+          "pattern": "^cap_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "parent_capability_id": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^cap_[a-z0-9][a-z0-9-]{7,63}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "issuer_id": {
+          "type": "string",
+          "pattern": "^authority:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "node_id",
+            "process_id"
+          ],
+          "properties": {
+            "node_id": {
+              "type": "string",
+              "pattern": "^node:[a-z0-9][a-z0-9._-]{2,63}$"
+            },
+            "process_id": {
+              "type": "string",
+              "pattern": "^process:[A-Za-z0-9._-]{3,128}$"
+            }
+          }
+        },
+        "audience": {
+          "$ref": "#/$defs/audience"
+        },
+        "policy_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "workspace_ref": {
+          "type": "string",
+          "pattern": "^workspace:[A-Za-z0-9._-]{3,128}$"
+        },
+        "allowed_actions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "read_artifact",
+              "search_artifact",
+              "write_workspace",
+              "run_test",
+              "execute_process",
+              "network_egress",
+              "external_write",
+              "secret_use"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "allowed_input_artifact_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "egress_aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^egress:[a-z0-9][a-z0-9._-]{2,63}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "broker_handle_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^broker-handle:[A-Za-z0-9._-]{8,128}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "resource_bounds": {
+          "$ref": "#/$defs/resourceBounds"
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "revocation_id": {
+          "type": "string",
+          "pattern": "^revoke_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "delegation_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "projection": {
+          "const": "governor_only"
+        },
+        "encoding_profile": {
+          "const": "simulation_unsigned_v1"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{22,128}$"
+        }
+      }
+    },
+    "artifactManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "artifact_id",
+        "task_id",
+        "run_id",
+        "producer",
+        "content_digest",
+        "byte_length",
+        "media_type",
+        "classification",
+        "storage_ref",
+        "created_at",
+        "parent_artifact_ids",
+        "provenance",
+        "immutable"
+      ],
+      "properties": {
+        "kind": {
+          "const": "artifact_manifest"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^run_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "producer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "node_id",
+            "adapter_id",
+            "process_id"
+          ],
+          "properties": {
+            "node_id": {
+              "type": "string",
+              "pattern": "^node:[a-z0-9][a-z0-9._-]{2,63}$"
+            },
+            "adapter_id": {
+              "type": "string",
+              "pattern": "^adapter:[a-z0-9][a-z0-9._-]{2,63}$"
+            },
+            "process_id": {
+              "type": "string",
+              "pattern": "^process:[A-Za-z0-9._-]{3,128}$"
+            }
+          }
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1073741824
+        },
+        "media_type": {
+          "type": "string",
+          "pattern": "^[a-z0-9.+-]+/[a-zA-Z0-9.+-]+$",
+          "maxLength": 128
+        },
+        "classification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted"
+          ]
+        },
+        "storage_ref": {
+          "type": "string",
+          "pattern": "^artifact-store:[A-Za-z0-9._/-]{3,180}$"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "parent_artifact_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "provenance": {
+          "type": "string",
+          "enum": [
+            "governor_observed",
+            "adapter_parsed",
+            "tool_self_reported",
+            "model_asserted"
+          ]
+        },
+        "immutable": {
+          "const": true
+        }
+      }
+    },
+    "executionReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "receipt_id",
+        "task_id",
+        "capability_id",
+        "authority_epoch",
+        "lease_generation",
+        "run_id",
+        "node_id",
+        "process_id",
+        "adapter_identity",
+        "workspace_ref",
+        "policy_digest",
+        "started_at",
+        "finished_at",
+        "terminal_state",
+        "process_result",
+        "observations",
+        "artifact_refs",
+        "usage",
+        "nonce"
+      ],
+      "properties": {
+        "kind": {
+          "const": "execution_receipt"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "receipt_id": {
+          "type": "string",
+          "pattern": "^receipt_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "capability_id": {
+          "type": "string",
+          "pattern": "^cap_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "run_id": {
+          "type": "string",
+          "pattern": "^run_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "node_id": {
+          "type": "string",
+          "pattern": "^node:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "process_id": {
+          "type": "string",
+          "pattern": "^process:[A-Za-z0-9._-]{3,128}$"
+        },
+        "adapter_identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "adapter_id",
+            "version",
+            "binary_digest",
+            "manifest_digest"
+          ],
+          "properties": {
+            "adapter_id": {
+              "type": "string",
+              "pattern": "^adapter:[a-z0-9][a-z0-9._-]{2,63}$"
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][A-Za-z0-9.-]+)?$"
+            },
+            "binary_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "manifest_digest": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        "workspace_ref": {
+          "type": "string",
+          "pattern": "^workspace:[A-Za-z0-9._-]{3,128}$"
+        },
+        "policy_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "terminal_state": {
+          "type": "string",
+          "enum": [
+            "success",
+            "failed",
+            "cancelled",
+            "timed_out",
+            "denied"
+          ]
+        },
+        "process_result": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exit_code",
+            "signal",
+            "wall_ms",
+            "budget_exceeded",
+            "filesystem_change_count",
+            "network_request_count"
+          ],
+          "properties": {
+            "exit_code": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "signal": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 255
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "wall_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 86400000
+            },
+            "budget_exceeded": {
+              "type": "boolean"
+            },
+            "filesystem_change_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            },
+            "network_request_count": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000
+            }
+          }
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "observation_id",
+              "trust_class",
+              "category",
+              "status",
+              "summary_code"
+            ],
+            "properties": {
+              "observation_id": {
+                "type": "string",
+                "pattern": "^obs_[a-z0-9][a-z0-9-]{7,63}$"
+              },
+              "trust_class": {
+                "type": "string",
+                "enum": [
+                  "governor_observed",
+                  "adapter_parsed",
+                  "tool_self_reported",
+                  "model_asserted"
+                ]
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "process",
+                  "filesystem",
+                  "network",
+                  "budget",
+                  "test",
+                  "usage",
+                  "tool_report",
+                  "model_report"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pass",
+                  "fail",
+                  "unknown"
+                ]
+              },
+              "summary_code": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]{2,63}$"
+              },
+              "evidence_artifact_id": {
+                "type": "string",
+                "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+              }
+            }
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "usage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "metric",
+              "value",
+              "authority_state"
+            ],
+            "properties": {
+              "metric": {
+                "type": "string",
+                "enum": [
+                  "fresh_input_tokens",
+                  "cached_input_tokens",
+                  "cache_write_tokens",
+                  "output_tokens",
+                  "reasoning_tokens",
+                  "coordination_tokens",
+                  "artifact_bytes",
+                  "cost_minor_units"
+                ]
+              },
+              "value": {
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "authority_state": {
+                "type": "string",
+                "enum": [
+                  "observed_exact",
+                  "tool_self_reported",
+                  "estimated",
+                  "unknown"
+                ]
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "authority_state": {
+                      "const": "unknown"
+                    }
+                  },
+                  "required": [
+                    "authority_state"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "value": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{22,128}$"
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifactPin"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "terminal_state": {
+                "const": "success"
+              }
+            },
+            "required": [
+              "terminal_state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "process_result": {
+                "properties": {
+                  "exit_code": {
+                    "const": 0
+                  },
+                  "budget_exceeded": {
+                    "const": false
+                  },
+                  "signal": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "exit_code",
+                  "budget_exceeded",
+                  "signal"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "terminal_state": {
+                "const": "failed"
+              }
+            },
+            "required": [
+              "terminal_state"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "process_result": {
+                    "properties": {
+                      "exit_code": {
+                        "not": {
+                          "const": 0
+                        }
+                      }
+                    },
+                    "required": [
+                      "exit_code"
+                    ]
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "process_result": {
+                    "properties": {
+                      "budget_exceeded": {
+                        "const": true
+                      }
+                    },
+                    "required": [
+                      "budget_exceeded"
+                    ]
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "process_result": {
+                    "properties": {
+                      "signal": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "signal"
+                    ]
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "observations": {
+                    "contains": {
+                      "properties": {
+                        "status": {
+                          "const": "fail"
+                        }
+                      },
+                      "required": [
+                        "status"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "promotionProposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "proposal_id",
+        "task_id",
+        "capability_id",
+        "authority_epoch",
+        "lease_generation",
+        "expected_authority_head",
+        "receipt_ids",
+        "artifact_refs",
+        "requested_effect",
+        "acceptance_evidence",
+        "proposed_by",
+        "created_at",
+        "idempotency_key",
+        "nonce"
+      ],
+      "properties": {
+        "kind": {
+          "const": "promotion_proposal"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "pattern": "^proposal_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "capability_id": {
+          "type": "string",
+          "pattern": "^cap_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expected_authority_head": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "receipt_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^receipt_[a-z0-9][a-z0-9-]{7,63}$"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "requested_effect": {
+          "type": "string",
+          "enum": [
+            "accept_artifact",
+            "apply_workspace_diff",
+            "record_no_change"
+          ]
+        },
+        "acceptance_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "check_id",
+              "observation_id",
+              "status"
+            ],
+            "properties": {
+              "check_id": {
+                "type": "string",
+                "pattern": "^check_[a-z0-9][a-z0-9-]{3,63}$"
+              },
+              "observation_id": {
+                "type": "string",
+                "pattern": "^obs_[a-z0-9][a-z0-9-]{7,63}$"
+              },
+              "status": {
+                "const": "pass"
+              },
+              "evidence_artifact_id": {
+                "type": "string",
+                "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+              }
+            }
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "proposed_by": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "actor_class",
+            "actor_id"
+          ],
+          "properties": {
+            "actor_class": {
+              "type": "string",
+              "enum": [
+                "worker",
+                "coordinator",
+                "adapter"
+              ]
+            },
+            "actor_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9._:-]{3,128}$"
+            }
+          }
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9._:-]{15,180}$"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{22,128}$"
+        },
+        "artifact_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifactPin"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      }
+    },
+    "promotionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "promotion_decision_id",
+        "proposal_id",
+        "task_id",
+        "authority_epoch",
+        "lease_generation",
+        "authority_writer_id",
+        "prior_authority_head",
+        "decision",
+        "reason_code",
+        "accepted_artifacts",
+        "prior_state",
+        "next_state",
+        "decided_at",
+        "idempotency_key"
+      ],
+      "properties": {
+        "kind": {
+          "const": "promotion_decision"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "promotion_decision_id": {
+          "type": "string",
+          "pattern": "^promotion_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "proposal_id": {
+          "type": "string",
+          "pattern": "^proposal_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^task_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "authority_writer_id": {
+          "type": "string",
+          "pattern": "^authority:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "prior_authority_head": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "promoted",
+            "rejected",
+            "quarantined"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "enum": [
+            "ACCEPTED",
+            "SCHEMA_INVALID",
+            "IDENTITY_MISMATCH",
+            "AUTHORITY_STALE",
+            "LEASE_EXPIRED",
+            "CAPABILITY_INVALID",
+            "CAPABILITY_REVOKED",
+            "SCOPE_EXCEEDED",
+            "BUDGET_EXCEEDED",
+            "ADAPTER_UNSUPPORTED",
+            "RECEIPT_UNVERIFIED",
+            "ARTIFACT_MISMATCH",
+            "EXPECTED_HEAD_MISMATCH",
+            "REPLAY_DETECTED",
+            "ACCEPTANCE_FAILED",
+            "POLICY_MISMATCH",
+            "RECOVERY_REQUIRED"
+          ]
+        },
+        "prior_state": {
+          "type": "string",
+          "enum": [
+            "proposal_received",
+            "receipt_verified",
+            "recovery_required"
+          ]
+        },
+        "next_state": {
+          "type": "string",
+          "enum": [
+            "promoted",
+            "rejected",
+            "quarantined",
+            "recovery_required"
+          ]
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9._:-]{15,180}$"
+        },
+        "accepted_artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifactPin"
+          },
+          "minItems": 0,
+          "uniqueItems": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "promoted"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason_code": {
+                "const": "ACCEPTED"
+              },
+              "prior_state": {
+                "const": "receipt_verified"
+              },
+              "next_state": {
+                "const": "promoted"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "rejected"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason_code": {
+                "not": {
+                  "const": "ACCEPTED"
+                }
+              },
+              "next_state": {
+                "const": "rejected"
+              },
+              "accepted_artifacts": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "quarantined"
+              }
+            },
+            "required": [
+              "decision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reason_code": {
+                "not": {
+                  "const": "ACCEPTED"
+                }
+              },
+              "next_state": {
+                "enum": [
+                  "quarantined",
+                  "recovery_required"
+                ]
+              },
+              "accepted_artifacts": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "authorityEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "event_id",
+        "sequence",
+        "authority_epoch",
+        "lease_generation",
+        "previous_event_digest",
+        "event_digest",
+        "event_type",
+        "actor",
+        "object_kind",
+        "object_ref",
+        "object_digest",
+        "transition",
+        "policy_digest",
+        "observed_at",
+        "idempotency_key"
+      ],
+      "properties": {
+        "kind": {
+          "const": "authority_event"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "event_id": {
+          "type": "string",
+          "pattern": "^event_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "previous_event_digest": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "event_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "authority_initialized",
+            "lease_acquired",
+            "lease_renewed",
+            "lease_released",
+            "authority_fenced",
+            "recovery_started",
+            "task_issued",
+            "task_revoked",
+            "capability_issued",
+            "capability_revoked",
+            "receipt_accepted",
+            "receipt_rejected",
+            "promotion_recorded",
+            "promotion_rejected",
+            "policy_activated",
+            "policy_recovery",
+            "restore_verified",
+            "restore_rejected",
+            "authority_halted",
+            "capability_consumed",
+            "receipt_quarantined",
+            "promotion_quarantined"
+          ]
+        },
+        "actor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "actor_class",
+            "actor_id"
+          ],
+          "properties": {
+            "actor_class": {
+              "type": "string",
+              "enum": [
+                "authority_core",
+                "operator_recovery"
+              ]
+            },
+            "actor_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9._:-]{3,128}$"
+            }
+          }
+        },
+        "object_kind": {
+          "type": "string",
+          "enum": [
+            "authority",
+            "authority_lease",
+            "task_envelope",
+            "capability_claim",
+            "execution_receipt",
+            "promotion_decision",
+            "policy_evidence",
+            "restore_evidence"
+          ]
+        },
+        "object_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9._:-]{3,180}$"
+        },
+        "object_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "transition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "state_machine",
+            "expected_state",
+            "resulting_state"
+          ],
+          "properties": {
+            "state_machine": {
+              "type": "string",
+              "enum": [
+                "authority",
+                "task",
+                "capability",
+                "receipt",
+                "promotion",
+                "policy"
+              ]
+            },
+            "expected_state": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+            },
+            "resulting_state": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "state_machine": {
+                    "const": "authority"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "expected_state": {
+                    "enum": [
+                      "UNINITIALIZED",
+                      "ACTIVE",
+                      "NO_WRITER",
+                      "FENCED",
+                      "RECOVERY_REQUIRED",
+                      "HALTED"
+                    ]
+                  },
+                  "resulting_state": {
+                    "enum": [
+                      "UNINITIALIZED",
+                      "ACTIVE",
+                      "NO_WRITER",
+                      "FENCED",
+                      "RECOVERY_REQUIRED",
+                      "HALTED"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "state_machine": {
+                    "const": "task"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "expected_state": {
+                    "enum": [
+                      "NONE",
+                      "ISSUED",
+                      "ACTIVE",
+                      "EVIDENCE_PENDING",
+                      "PROMOTION_PENDING",
+                      "PROMOTED",
+                      "COMPLETED_NO_CHANGE",
+                      "REJECTED",
+                      "QUARANTINED",
+                      "REVOKED",
+                      "EXPIRED"
+                    ]
+                  },
+                  "resulting_state": {
+                    "enum": [
+                      "NONE",
+                      "ISSUED",
+                      "ACTIVE",
+                      "EVIDENCE_PENDING",
+                      "PROMOTION_PENDING",
+                      "PROMOTED",
+                      "COMPLETED_NO_CHANGE",
+                      "REJECTED",
+                      "QUARANTINED",
+                      "REVOKED",
+                      "EXPIRED"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "state_machine": {
+                    "const": "capability"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "expected_state": {
+                    "enum": [
+                      "NONE",
+                      "ISSUED",
+                      "ACTIVE",
+                      "CONSUMED",
+                      "REVOKED",
+                      "EXPIRED"
+                    ]
+                  },
+                  "resulting_state": {
+                    "enum": [
+                      "NONE",
+                      "ISSUED",
+                      "ACTIVE",
+                      "CONSUMED",
+                      "REVOKED",
+                      "EXPIRED"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "state_machine": {
+                    "const": "receipt"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "expected_state": {
+                    "enum": [
+                      "NONE",
+                      "SUBMITTED",
+                      "VERIFIED",
+                      "REJECTED",
+                      "QUARANTINED"
+                    ]
+                  },
+                  "resulting_state": {
+                    "enum": [
+                      "NONE",
+                      "SUBMITTED",
+                      "VERIFIED",
+                      "REJECTED",
+                      "QUARANTINED"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "state_machine": {
+                    "const": "promotion"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "expected_state": {
+                    "enum": [
+                      "NONE",
+                      "PROPOSAL_RECEIVED",
+                      "RECEIPT_VERIFIED",
+                      "PROMOTED",
+                      "REJECTED",
+                      "QUARANTINED"
+                    ]
+                  },
+                  "resulting_state": {
+                    "enum": [
+                      "NONE",
+                      "PROPOSAL_RECEIVED",
+                      "RECEIPT_VERIFIED",
+                      "PROMOTED",
+                      "REJECTED",
+                      "QUARANTINED"
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "state_machine": {
+                    "const": "policy"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              },
+              "then": {
+                "properties": {
+                  "expected_state": {
+                    "enum": [
+                      "UNINITIALIZED",
+                      "ACTIVE",
+                      "RECOVERY_REQUIRED"
+                    ]
+                  },
+                  "resulting_state": {
+                    "enum": [
+                      "UNINITIALIZED",
+                      "ACTIVE",
+                      "RECOVERY_REQUIRED"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "policy_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9._:-]{15,180}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "sequence": {
+                "const": 1
+              }
+            },
+            "required": [
+              "sequence"
+            ]
+          },
+          "then": {
+            "properties": {
+              "previous_event_digest": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "previous_event_digest": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "authority_initialized",
+                  "authority_fenced",
+                  "authority_halted",
+                  "recovery_started"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "authority"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "authority"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "lease_acquired",
+                  "lease_renewed",
+                  "lease_released"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "authority_lease"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "authority"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "task_issued",
+                  "task_revoked"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "task_envelope"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "task"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "capability_issued",
+                  "capability_revoked",
+                  "capability_consumed"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "capability_claim"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "capability"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "receipt_accepted",
+                  "receipt_rejected",
+                  "receipt_quarantined"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "execution_receipt"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "receipt"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "promotion_recorded",
+                  "promotion_rejected",
+                  "promotion_quarantined"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "promotion_decision"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "promotion"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "policy_activated",
+                  "policy_recovery"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "policy_evidence"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "policy"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "enum": [
+                  "restore_verified",
+                  "restore_rejected"
+                ]
+              }
+            },
+            "required": [
+              "event_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "object_kind": {
+                "const": "restore_evidence"
+              },
+              "transition": {
+                "properties": {
+                  "state_machine": {
+                    "const": "authority"
+                  }
+                },
+                "required": [
+                  "state_machine"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "authorityLease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "operator_id",
+        "lease_record_id",
+        "lease_id",
+        "authority_epoch",
+        "lease_generation",
+        "writer_id",
+        "lease_action",
+        "authorization_ref",
+        "expected_authority_state",
+        "issued_at",
+        "valid_from",
+        "expires_at",
+        "policy_digest",
+        "prior_authority_head",
+        "previous_lease_record_id",
+        "projection",
+        "encoding_profile",
+        "nonce"
+      ],
+      "properties": {
+        "kind": {
+          "const": "authority_lease"
+        },
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "operator_id": {
+          "type": "string",
+          "pattern": "^operator:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "lease_record_id": {
+          "type": "string",
+          "pattern": "^lease-record_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "lease_id": {
+          "type": "string",
+          "pattern": "^lease_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "authority_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lease_generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "writer_id": {
+          "type": "string",
+          "pattern": "^authority:[a-z0-9][a-z0-9._-]{2,63}$"
+        },
+        "lease_action": {
+          "type": "string",
+          "enum": [
+            "acquire",
+            "renew",
+            "reissue",
+            "recovery"
+          ]
+        },
+        "authorization_ref": {
+          "type": "string",
+          "pattern": "^(operator-decision|policy-decision):[A-Za-z0-9._:/-]{3,180}$"
+        },
+        "expected_authority_state": {
+          "type": "string",
+          "enum": [
+            "UNINITIALIZED",
+            "ACTIVE",
+            "NO_WRITER",
+            "FENCED",
+            "RECOVERY_REQUIRED",
+            "HALTED"
+          ]
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-(0[1-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d{1,9})?Z$",
+          "description": "Exclusive canonical lease-validity boundary: at explicit authority as_of >= expires_at the lease is expired. This version defines no implicit grace period."
+        },
+        "policy_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "prior_authority_head": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "previous_lease_record_id": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^lease-record_[a-z0-9][a-z0-9-]{7,63}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "projection": {
+          "const": "governor_only"
+        },
+        "encoding_profile": {
+          "const": "simulation_unsigned_v1"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{22,128}$"
+        }
+      }
+    },
+    "artifactPin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "content_digest",
+        "manifest_digest"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^artifact_[a-z0-9][a-z0-9-]{7,63}$"
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "manifest_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

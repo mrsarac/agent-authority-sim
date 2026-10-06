@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1.0",
+  "python_version": "3.11.14",
+  "requirements_lock_sha256": "b2e396e47de2a7f8a112b3e42c3df2836ed63a3f1b2c7677cee51a7dde7aa005",
+  "files": [
+    {
+      "name": "authority-state-machine.md",
+      "size": 19375,
+      "sha256": "ba23ac25cbb6e367e929c87abc49d9426a36a4198e58afc1dbc6b6865d0a49aa"
+    },
+    {
+      "name": "contracts.schema.json",
+      "size": 60271,
+      "sha256": "730b9eb2cb62825be0a48fcda968115cdd17a4bede1fedd9869a9a9021fef3f5"
+    },
+    {
+      "name": "invalid-vectors.json",
+      "size": 7811,
+      "sha256": "02a158afdf96236a9d103d11ed548f3437afc48b6bcf03774717993089ff11c3"
+    },
+    {
+      "name": "design.md",
+      "size": 20962,
+      "sha256": "5b81dd633a4f87a9e91d0a3ffb81f2df7996a30eefaea5a9c22a0c82d6761698"
+    },
+    {
+      "name": "property-test-catalog.md",
+      "size": 17376,
+      "sha256": "fc0b45e4072cb5e6db244d396c78c013c6b8abfd8f2e31e90c74cc85e5418867"
+    },
+    {
+      "name": "valid-contracts.json",
+      "size": 11336,
+      "sha256": "c7d5390c1e40ab86ac54ea3b227cce66f4256d7ca69204ad228df663c217eb01"
+    }
+  ]
+}

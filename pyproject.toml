@@ -1,0 +1,13 @@
+[project]
+name = "agent-authority-sim"
+version = "0.1.0"
+description = "Deterministic, model-free simulator of a finite agent-authority model"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "jsonschema==4.26.0",
+]
+
+[tool.authority_sim]
+schema_version = "0.1.0"
+proof_layer = "finite-simulator"
+production_claim = false
