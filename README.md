@@ -1,14 +1,13 @@
 # agent-authority-sim
 
-> A deterministic, model-free simulator of a finite authority model for AI agents: agents get narrow, scoped authority and return evidence, and a separate trusted layer decides what becomes canonical state.
+A deterministic, model-free simulator of a finite authority model for AI agents: agents get narrow, scoped authority and return evidence, and a separate trusted layer decides what becomes canonical state.
 
-[![tests](https://github.com/mrsarac/agent-authority-sim/actions/workflows/tests.yml/badge.svg)](https://github.com/mrsarac/agent-authority-sim/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-lightgrey.svg)](pyproject.toml)
 
-**Status:** research prototype, spec `0.1.0`. The full suite is 207/207 passing. The full simulator/property proof is **not** established (see [What is not proved yet](#what-is-not-proved-yet)).
+This is a research prototype and a simulator proof, not a production agent runtime. It makes no claim about cryptography, OS isolation, real CLI adapters, secret injection, remote nodes, failover or production safety.
 
-This is a simulator proof, not a production agent runtime. It makes no claim about cryptography, OS isolation, real CLI adapters, secret injection, remote nodes, failover or production safety.
-
-## The idea in plain English
+## Why
 
 When several AI agents work on one project, someone has to decide which results count. If an agent can write straight into the shared state, one confused or compromised agent can overwrite everything. This model splits the job in two:
 
@@ -18,6 +17,30 @@ When several AI agents work on one project, someone has to decide which results 
 4. **A human operator holds the root.** Bootstrap, recovery after a contradiction, and emergency halt need operator authorization. When the core cannot establish one valid state, it stops promoting and waits for recovery instead of guessing.
 
 Everything fails closed: unknown fields, unknown adapter features, stale epochs, expired leases, replayed requests and mismatched hashes are denied with a generic reason code, and nothing is written.
+
+## Quick start
+
+Requirements: Python **3.11.14** exactly (the spec-lock tests check the interpreter version) on macOS arm64. `requirements.lock` pins wheel hashes generated on macOS arm64, so `pip install --require-hashes` works only there.
+
+```bash
+git clone https://github.com/mrsarac/agent-authority-sim.git
+cd agent-authority-sim
+python3.11 -m venv .venv
+.venv/bin/pip install --require-hashes -r requirements.lock
+PYTHONPATH=src:. .venv/bin/python -m unittest discover -s tests
+```
+
+Expected result: `Ran 207 tests` and `OK`. The suite prints `SPEC_LOCK_INVALID` several times; those lines come from negative tests that tamper with the spec lock on purpose.
+
+To check only the spec lock:
+
+```bash
+PYTHONPATH=src:. .venv/bin/python -m unittest tests.unit.test_spec_lock -v
+```
+
+CI runs the full suite on every push to `main` and every pull request on a macOS arm64 runner with Python 3.11.14.
+
+## How it works
 
 ```mermaid
 flowchart LR
@@ -40,7 +63,7 @@ flowchart LR
 
 The checks run in a fixed order before any append: schema, operator and object bindings, epoch and lease generation, lease expiry on the core's clock, task/capability/policy/revocation state, capability attenuation and budgets, receipt state and evidence trust class, artifact hash pins, expected log head, and replay/idempotency. The full order is in [`spec/v0.1.0/design.md`](spec/v0.1.0/design.md), section 11.2.
 
-## What the simulator covers today
+### What the simulator covers today
 
 All of it runs in memory, with a fake clock and no model, network, subprocess, real CLI, secret or host filesystem access in `src/`.
 
@@ -54,36 +77,7 @@ All of it runs in memory, with a fake clock and no model, network, subprocess, r
 - **Artifacts and receipts.** Content and manifest hash pins, receipt trust classes (`governor_observed` > `adapter_parsed` > `tool_self_reported` > `model_asserted`), fail-closed artifact recovery.
 - **Spec lock.** `spec/v0.1.0/spec-lock.json` pins the size and SHA-256 of every spec file and of `requirements.lock`; tests fail if any of them changes.
 
-## What is not proved yet
-
-- The promotion decision path with its compare-and-append is not integrated. The core can check whether promotion would be allowed (P01/P02), but the full promotion flow is the next gate.
-- The property set P03–P26 is not complete as a final set, and the invalid vectors X01–X03 are deferred.
-- The named "false-green" mutation demonstrations (break a guard, watch the matching test fail) are not all recorded yet.
-- There is no end-to-end proof runner and no two-run determinism check yet.
-- An independent review of the latest code is still pending.
-- Nothing here is a production guarantee. Section 12 of [`spec/v0.1.0/property-test-catalog.md`](spec/v0.1.0/property-test-catalog.md) lists what even a full pass would not prove.
-
-## Run the tests
-
-Requirements: Python **3.11.14** exactly (the spec-lock tests check the interpreter version) on macOS arm64. `requirements.lock` pins wheel hashes generated on macOS arm64, so `pip install --require-hashes` works only there.
-
-```bash
-python3.11 -m venv .venv
-.venv/bin/pip install --require-hashes -r requirements.lock
-PYTHONPATH=src:. .venv/bin/python -m unittest discover -s tests
-```
-
-Expected result: `Ran 207 tests` and `OK`, in about two minutes on a laptop. The suite prints `SPEC_LOCK_INVALID` several times; those lines come from negative tests that tamper with the spec lock on purpose.
-
-To check only the spec lock:
-
-```bash
-PYTHONPATH=src:. .venv/bin/python -m unittest tests.unit.test_spec_lock -v
-```
-
-CI runs the full suite on every push and pull request on a macOS arm64 runner with Python 3.11.14.
-
-## Layout
+### Layout
 
 | Path | What it is |
 |---|---|
@@ -94,12 +88,24 @@ CI runs the full suite on every push and pull request on a macOS arm64 runner wi
 | `tests/security/` | Error privacy (no paths, secrets or digests in errors) and the public API surface. |
 | `scripts/verify_spec_lock.py` | Verifies the spec bundle against `spec-lock.json`. |
 
-## Where this came from
+## Status / limits
 
-The spec was written in August 2026 as part of a private research note on agent authority, and the simulator was built against it with AI coding agents under test-driven development. For this public release, internal project and host names were replaced with neutral terms ("operator", "coordinator", "decision plane"), the spec lock was regenerated, and the history was squashed into one commit. The rules and the tests were not changed; the suite passed 207/207 before and after the renaming.
+Research prototype, spec `0.1.0`. The full suite passes (207 tests). The full simulator/property proof is **not** established:
+
+- The promotion decision path with its compare-and-append is not integrated. The core can check whether promotion would be allowed (P01/P02), but the full promotion flow is the next gate.
+- The property set P03–P26 is not complete as a final set, and the invalid vectors X01–X03 are deferred.
+- The named "false-green" mutation demonstrations (break a guard, watch the matching test fail) are not all recorded yet.
+- There is no end-to-end proof runner and no two-run determinism check yet.
+- An independent review of the latest code is still pending.
+- The pinned dependencies install only on macOS arm64 with Python 3.11.14.
+- Nothing here is a production guarantee. Section 12 of [`spec/v0.1.0/property-test-catalog.md`](spec/v0.1.0/property-test-catalog.md) lists what even a full pass would not prove.
 
 The repository is public for reading and review. There is no deploy target: nothing here runs as a service.
 
+### Where this came from
+
+The spec was written in August 2026 as part of a private research note on agent authority, and the simulator was built against it with AI coding agents under test-driven development. For this public release, internal project and host names were replaced with neutral terms ("operator", "coordinator", "decision plane"), the spec lock was regenerated, and the history was squashed into one commit. The rules and the tests were not changed; the suite passed 207/207 before and after the renaming.
+
 ## License
 
-[MIT](LICENSE) © 2026 Mustafa Saraç
+[MIT](LICENSE), Copyright (c) 2026 Mustafa Saraç.
